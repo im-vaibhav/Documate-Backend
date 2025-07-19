@@ -32,30 +32,30 @@ const forgotPassword = async (req, res) => {
 
         // Generate reset token
         const resetToken = crypto.randomBytes(32).toString('hex');
-        
+
         // Save reset token to database
         const passwordReset = new passwordResetModel({
             userId: user._id,
             email: user.email,
             token: resetToken
         });
-        
+
         await passwordReset.save();
 
         // Send reset email
         const emailResult = await sendPasswordResetEmail(email, resetToken, user.name);
-        
+
         if (emailResult.success) {
-            res.json({ 
-                success: true, 
-                message: "Password reset link has been sent to your email" 
+            res.json({
+                success: true,
+                message: "Password reset link has been sent to your email"
             });
         } else {
             // Clean up the token if email failed
             await passwordResetModel.deleteOne({ token: resetToken });
-            res.json({ 
-                success: false, 
-                message: "Failed to send email. Please try again later." 
+            res.json({
+                success: false,
+                message: "Failed to send email. Please try again later."
             });
         }
 
@@ -76,11 +76,11 @@ const verifyResetToken = async (req, res) => {
 
         // Find the reset token
         const resetRecord = await passwordResetModel.findOne({ token });
-        
+
         if (!resetRecord) {
-            return res.json({ 
-                success: false, 
-                message: "Invalid or expired reset token" 
+            return res.json({
+                success: false,
+                message: "Invalid or expired reset token"
             });
         }
 
@@ -90,10 +90,10 @@ const verifyResetToken = async (req, res) => {
             return res.json({ success: false, message: "User not found" });
         }
 
-        res.json({ 
-            success: true, 
+        res.json({
+            success: true,
             message: "Token is valid",
-            email: resetRecord.email 
+            email: resetRecord.email
         });
 
     } catch (error) {
@@ -105,30 +105,30 @@ const verifyResetToken = async (req, res) => {
 // API to reset password
 const resetPassword = async (req, res) => {
     try {
-        const { token, newPassword } = req.body;
+        const { token, password: newPassword } = req.body;
 
         // Validate inputs
         if (!token || !newPassword) {
-            return res.json({ 
-                success: false, 
-                message: "Token and new password are required" 
+            return res.json({
+                success: false,
+                message: "Token and new password are required"
             });
         }
 
         if (newPassword.length < 8) {
-            return res.json({ 
-                success: false, 
-                message: "Password must be at least 8 characters long" 
+            return res.json({
+                success: false,
+                message: "Password must be at least 8 characters long"
             });
         }
 
         // Find the reset token
         const resetRecord = await passwordResetModel.findOne({ token });
-        
+
         if (!resetRecord) {
-            return res.json({ 
-                success: false, 
-                message: "Invalid or expired reset token" 
+            return res.json({
+                success: false,
+                message: "Invalid or expired reset token"
             });
         }
 
@@ -148,9 +148,9 @@ const resetPassword = async (req, res) => {
         // Delete the used reset token
         await passwordResetModel.deleteOne({ token });
 
-        res.json({ 
-            success: true, 
-            message: "Password has been reset successfully" 
+        res.json({
+            success: true,
+            message: "Password has been reset successfully"
         });
 
     } catch (error) {
@@ -170,11 +170,11 @@ const googleAuth = async (req, res) => {
 
         // Verify Google token
         const verificationResult = await verifyGoogleToken(token);
-        
+
         if (!verificationResult.success) {
-            return res.json({ 
-                success: false, 
-                message: "Invalid Google token" 
+            return res.json({
+                success: false,
+                message: "Invalid Google token"
             });
         }
 
@@ -186,7 +186,7 @@ const googleAuth = async (req, res) => {
         if (user) {
             // User exists, update Google info if needed
             if (!user.googleId) {
-                await userModel.findByIdAndUpdate(user._id, { 
+                await userModel.findByIdAndUpdate(user._id, {
                     googleId: googleUser.googleId,
                     image: googleUser.picture || user.image
                 });
@@ -208,8 +208,8 @@ const googleAuth = async (req, res) => {
         // Generate JWT token
         const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
-        res.json({ 
-            success: true, 
+        res.json({
+            success: true,
             token: jwtToken,
             message: "Google authentication successful"
         });
@@ -225,4 +225,4 @@ export {
     verifyResetToken,
     resetPassword,
     googleAuth
-};
+};  

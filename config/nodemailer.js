@@ -1,21 +1,22 @@
 import nodemailer from 'nodemailer';
 
 const createTransporter = () => {
-    return nodemailer.createTransporter({
-        service: 'gmail',
+    return nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: parseInt(process.env.SMTP_PORT || '587'),
         auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
-        }
+            user: process.env.SMTP_USER,
+            pass: process.env.SMTP_PASS,
+        },
     });
 };
 
 export const sendPasswordResetEmail = async (email, resetToken, userName) => {
     try {
         const transporter = createTransporter();
-        
+
         const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
-        
+
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: email,
