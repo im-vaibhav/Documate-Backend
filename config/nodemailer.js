@@ -20,7 +20,7 @@ export const sendPasswordResetEmail = async (email, resetToken, userName) => {
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: email,
-            subject: 'Password Reset Request - Healthcare App',
+            subject: 'Password Reset Request - Documate',
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                     <h2 style="color: #333;">Password Reset Request</h2>
